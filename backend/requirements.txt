@@ -11,3 +11,4 @@ nltk==3.8.1
 sentence-transformers==2.5.1
 torch==2.2.1
 Pillow==10.3.0
+pdf2image==1.16.3
