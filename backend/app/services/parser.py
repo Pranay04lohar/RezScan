@@ -3,7 +3,6 @@ from typing import Optional
 from PyPDF2 import PdfReader
 from docx import Document
 import logging
-import pytesseract
 from pdf2image import convert_from_path
 from PIL import Image
 import re
