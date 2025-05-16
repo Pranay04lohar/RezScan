@@ -11,7 +11,7 @@ from app.services.skill_extractor import SkillExtractor
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://rezscan.vercel.app"])
 
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -191,11 +191,6 @@ def match_resumes():
         file_handler.cleanup_files(jd_path, resume_paths)
 
 if __name__ == '__main__':
-    # Run the app in development mode
-    app.run(
-        host='127.0.0.1',  # Only allow local connections
-        port=5000,
-        debug=True,
-        ssl_context=None  # Disable SSL for development
-    ) 
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port) 
 
