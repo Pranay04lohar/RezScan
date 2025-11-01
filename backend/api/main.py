@@ -8,10 +8,21 @@ from app.services.batch_processor import TextPreprocessor
 from app.services.similarity_engine import SimilarityEngine, SimilarityMetric, SimilarityConfig
 from flask_cors import CORS
 from app.services.skill_extractor import SkillExtractor
+# import azure.functions as func  # Not needed for Hugging Face Spaces
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, origins=["https://rezscan.vercel.app"])
+
+# Configure CORS
+# Allow specific origins from environment variable, or allow all in development
+cors_origins = os.environ.get('CORS_ORIGINS', '*')
+if cors_origins == '*':
+    # Development: allow all origins
+    CORS(app)
+else:
+    # Production: allow specific origins (comma-separated)
+    origins = [origin.strip() for origin in cors_origins.split(',')]
+    CORS(app, origins=origins)
 
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -190,7 +201,11 @@ def match_resumes():
         # Clean up uploaded files
         file_handler.cleanup_files(jd_path, resume_paths)
 
+# Azure Functions handler - not needed for Hugging Face Spaces
+# def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+#     return func.WsgiMiddleware(app.wsgi_app).handle(req, context)
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port) 
+    app.run(host="0.0.0.0", port=port, debug=False) 
 

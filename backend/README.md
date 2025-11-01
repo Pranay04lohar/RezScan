@@ -2,6 +2,14 @@
 
 This backend powers the RezScan Applicant Tracking System (ATS) and provides APIs for intelligent resume and job description matching using BERT embeddings and skill extraction.
 
+---
+
+sdk: python
+sdk_version: 3.12.0
+app_file: app.py
+
+---
+
 ## Features
 
 - **File Upload:** Accepts job description and multiple resume files (PDF, DOCX, TXT) via the `/api/match` endpoint.
@@ -145,6 +153,119 @@ cosine_sim = util.cos_sim(emb_jd, emb_resume)
 - For OCR support, Tesseract must be installed on your system if you want to extract text from images in PDFs.
 - All temporary files are cleaned up after processing.
 - The backend is designed to work with the RezScan frontend for a seamless ATS experience.
+
+## Hugging Face Spaces Deployment
+
+For deploying to Hugging Face Spaces (free tier with >2GB RAM), see [HUGGINGFACE_SPACES.md](./HUGGINGFACE_SPACES.md) for detailed instructions.
+
+Quick setup:
+
+1. Create a new Space on Hugging Face with Python SDK
+2. Connect your GitHub repository and set Space directory to `backend/`
+3. Ensure `app.py` entry point is in the backend directory (already created)
+4. Set environment variables in Space settings
+5. Deploy and get your Space URL
+6. Update Vercel frontend with `VITE_API_URL` environment variable
+
+## Azure Container Deployment
+
+### Prerequisites
+
+1. Azure CLI installed
+2. Docker installed locally
+3. Azure subscription
+
+### Deployment Steps
+
+1. **Login to Azure**
+
+```bash
+az login
+```
+
+2. **Create Azure Container Registry (ACR)**
+
+```bash
+# Create a resource group
+az group create --name rezscan-rg --location eastus
+
+# Create ACR
+az acr create --resource-group rezscan-rg --name rezscanregistry --sku Basic
+
+# Enable admin access
+az acr update -n rezscanregistry --admin-enabled true
+```
+
+3. **Build and Push Docker Image**
+
+```bash
+# Login to ACR
+az acr login --name rezscanregistry
+
+# Build the image
+docker build -t rezscanregistry.azurecr.io/rezscan-backend:latest .
+
+# Push the image
+docker push rezscanregistry.azurecr.io/rezscan-backend:latest
+```
+
+4. **Create Azure Container App**
+
+```bash
+# Create Container App environment
+az containerapp env create \
+  --name rezscan-env \
+  --resource-group rezscan-rg \
+  --location eastus
+
+# Create Container App
+az containerapp create \
+  --name rezscan-backend \
+  --resource-group rezscan-rg \
+  --environment rezscan-env \
+  --image rezscanregistry.azurecr.io/rezscan-backend:latest \
+  --target-port 5000 \
+  --ingress external \
+  --min-replicas 1 \
+  --max-replicas 3 \
+  --env-vars "FLASK_ENV=production"
+```
+
+5. **Get the Container App URL**
+
+```bash
+az containerapp show \
+  --name rezscan-backend \
+  --resource-group rezscan-rg \
+  --query properties.configuration.ingress.fqdn
+```
+
+### Environment Variables
+
+Make sure to set the following environment variables in your Azure Container App:
+
+- `FLASK_ENV=production`
+- Add any other environment variables your application needs
+
+### Monitoring
+
+You can monitor your application using Azure Portal:
+
+1. Go to Azure Portal
+2. Navigate to your Container App
+3. Check the "Monitoring" section for logs and metrics
+
+### Scaling
+
+The Container App is configured to scale between 1 and 3 replicas. You can adjust these values based on your needs:
+
+```bash
+az containerapp update \
+  --name rezscan-backend \
+  --resource-group rezscan-rg \
+  --min-replicas 1 \
+  --max-replicas 5
+```
 
 ---
 

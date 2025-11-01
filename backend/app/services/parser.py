@@ -3,10 +3,8 @@ from typing import Optional
 from PyPDF2 import PdfReader
 from docx import Document
 import logging
-from pdf2image import convert_from_path
 from PIL import Image
 import re
-
 class DocumentParser:
     """Parser service for extracting text from PDF and DOCX files."""
     
