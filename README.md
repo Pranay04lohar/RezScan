@@ -1,3 +1,9 @@
+# Demo Video:
+
+
+https://github.com/user-attachments/assets/286ab5ca-913f-48c4-9ee9-f470f7ed8436
+
+
 # RezScan Project
 
 A smart Applicant Tracking System (ATS) for matching resumes to job descriptions using BERT-based semantic analysis and skill extraction.
