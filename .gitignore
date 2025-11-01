@@ -1,0 +1,33 @@
+# Secrets and tokens
+*token*.txt
+*secret*.txt
+*.key
+*.pem
+hf_*.txt
+Rezscan token*.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+uploads/
+*.tmp
+
